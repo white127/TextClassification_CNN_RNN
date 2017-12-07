@@ -107,6 +107,7 @@ class RNN_Model(object):
 
         self.input_data = tf.placeholder(tf.int32, [self.batch_size, num_step])
         self.target = tf.placeholder(tf.int64, [self.batch_size, config.num_classes])
+        #tf.nn.rnn的输出是[n_step, batch_size, hidden_layer_size], 这里和输出对应上
         self.mask_x = tf.placeholder(tf.float32, [num_step, self.batch_size])
 
         num_classes=config.num_classes
@@ -116,6 +117,7 @@ class RNN_Model(object):
         hidden_layer_num=config.hidden_layer_num
 
         #fw_cell = tf.contrib.rnn.BasicLSTMCell(hidden_neural_size,forget_bias=0.0,state_is_tuple=True)
+        #定义gru运算单元，前向
         fw_cell = tf.contrib.rnn.GRUCell(num_units=hidden_neural_size, activation=tf.nn.relu)
         if self.keep_prob<1:
             fw_cell =  tf.contrib.rnn.DropoutWrapper(
@@ -123,11 +125,13 @@ class RNN_Model(object):
             )
         self._initial_state = fw_cell.zero_state(self.batch_size,dtype=tf.float32)
         #bw_cell = tf.contrib.rnn.BasicLSTMCell(hidden_neural_size,forget_bias=0.0,state_is_tuple=True)
+        #定义gru运算单元,后向
         bw_cell = tf.contrib.rnn.GRUCell(num_units=hidden_neural_size, activation=tf.nn.relu)
         if self.keep_prob<1:
             bw_cell =  tf.contrib.rnn.DropoutWrapper(
                 bw_cell,output_keep_prob=self.keep_prob
             )
+        #初始化状态为0
         self._initial_state = bw_cell.zero_state(self.batch_size,dtype=tf.float32)
 
         #embedding layer
@@ -135,6 +139,7 @@ class RNN_Model(object):
             embedding = tf.get_variable("embedding",[vocabulary_size,embed_dim],dtype=tf.float32)
             inputs=tf.nn.embedding_lookup(embedding,self.input_data)
 
+        #embedding的输出进行dropout
         if self.keep_prob<1:
             inputs = tf.nn.dropout(inputs,self.keep_prob)
 
@@ -149,13 +154,19 @@ class RNN_Model(object):
                 out_put.append(cell_output)
         out_put = out_put * self.mask_x[:,:,None]
         """
+        #初始化状态
         state = self._initial_state
+        #[batch_size, n_steps, embedding_size] -> [n_steps, batch_size, embedding_size]
         inputs = tf.transpose(inputs, [1, 0, 2])
+        #[n_steps, batch_size, embedding_size] -> [n_steps * batch_size, embedding_size]
         inputs = tf.reshape(inputs, [-1, embed_dim])
+        #n_steps * [batch_size, embedding_size]，split成一个list,每个list是一个[batch_size, embedding_size]
         inputs = tf.split(inputs, num_step)
         out_put, _, _ = tf.contrib.rnn.static_bidirectional_rnn(fw_cell, bw_cell, inputs, initial_state_fw=state, initial_state_bw=state)
+        #对append的<a>生成的hidden向量,全部置为0
         out_put = out_put * self.mask_x[:, :, None]
 
+        #求每句话的hidden向量的均值
         with tf.name_scope("mean_pooling_layer"):
             out_put = tf.reduce_sum(out_put,0) / (tf.reduce_sum(self.mask_x,0)[:,None])
 
