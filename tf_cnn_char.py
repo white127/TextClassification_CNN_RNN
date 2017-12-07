@@ -4,9 +4,11 @@ import numpy as np
 import random, time, os, datetime
 
 #########################################################################
-# precision : (30w) / 0.731(3w) / 0.690(1w) RMSProp is a bit better than Adam
+# 单层CNN文本分类模型
 #########################################################################
 
+#输入是定长序列，超过指定长度的截断，不足指定长度的补<a>
+#构建字典
 def build_vocab():
   code, vocab = int(0), {}
   vocab['UNKNOWN'] = code
@@ -23,6 +25,7 @@ def build_vocab():
         code += 1
   return vocab
 
+#分类名转id
 def load_index():
   imap, c = {}, int(0)
   for line in open('/export/jw/kg/data/sw_kgtrain.txt'):
@@ -32,6 +35,7 @@ def load_index():
       c += 1
   return imap
 
+#将分类结果转换成one-hot的形式
 def encode_index(c, imap):
   index = imap[c]
   y = [int(0)] * len(imap)
@@ -39,6 +43,7 @@ def encode_index(c, imap):
   return y
 
 #be attention initialization of UNKNNOW
+#对句子进行编码
 def encode_sent(vocab, sent, size):
     x = []
     words = sent.split('_')
@@ -52,6 +57,7 @@ def encode_sent(vocab, sent, size):
           x.append(vocab['<a>'])
     return x
 
+#读取验证数据,验证数据格式和训练数据一样
 def load_data_val(testList, vocab, index, batch_size, sent_len, imap):
     xlist, ylist, origxlist = [], [], []
     for i in range(0, batch_size):
