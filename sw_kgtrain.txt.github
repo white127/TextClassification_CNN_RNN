@@ -1,10 +1,3 @@
-dianpuJIMI-tongyong1	什么时间出库	买_下_什_么_时_候_可_以_发_货
-dianpuJIMI-tongyong1	订单状态解释	帮_我_查_询_这_个_订_单_NUMBER
-dianpuJIMI-tongyong1	other	那_还_写_如_需_定_制_请_联_系_客_服
-dianpuJIMI-tongyong1	查不到物流信息	订_购_的_东_西_物_流_DATEDAY_都_没_有_变_化
-dianpuJIMI-tongyong1	商品介绍	WAREID
-dianpuJIMI-tongyong1	other	是_ADDRESS_发_过_去_的_叫_徐_堂_卫_衣_服_是_COLOR_的_就_是_用_这_个_号_买_的
-dianpuJIMI-tongyong1	什么时间出库	都_马_上_下_午_了_还_不_发_货
-dianpuJIMI-tongyong1	订单状态解释	订_单_号_:_NUMBER_是_否_已_发_货
-dianpuJIMI-tongyong1	配送周期	e_-_叹_气_几_天_能_到
-dianpuJIMI-tongyong1	查不到物流信息	快_递_没_了
+tongyong1	什么时间出库	买_下_什_么_时_候_可_以_发_货
+tongyong1	订单状态解释	帮_我_查_询_这_个_订_单_NUMBER
+tongyong1	other	那_还_写_如_需_定_制_请_联_系_客_服
